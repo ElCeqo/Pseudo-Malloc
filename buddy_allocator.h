@@ -19,7 +19,7 @@ typedef struct BuddyListItem {
 typedef struct {
   ListHead free[MAX_LEVELS];
   int num_levels;
-  PoolAllocator list_allocator;
+  PoolAllocator list_allocator; //here we store the BuddyListItems
   char *memory;        // the memory area to be managed
   int min_bucket_size; // the minimum page of RAM that can be returned
 } BuddyAllocator;
