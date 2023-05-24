@@ -1,12 +1,21 @@
 #include "pseudo_malloc.h"
-#include "buddy_allocator.h"
+#include "my_buddy_allocator.h"
+
+#define MEMORY_SIZE (1024 * 1024) // 1MB
+
+char memory[MEMORY_SIZE];
 
 void * pseudo_malloc(size_t size){
     //TODO
-
+    
     /*from man:
         If size is 0 malloc returns NULL
         On error returns NULL*/
+    
+    //Just a test
+    uint8_t *bitmap;
+    MyBuddyAllocator allocator;
+    MyBuddyAllocator_init(&allocator, bitmap, &memory);
 }
 
 void pseudo_free(void * ptr){
