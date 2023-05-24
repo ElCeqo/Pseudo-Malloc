@@ -15,9 +15,8 @@ typedef enum {
 
 typedef struct MyBuddyAllocator {
     BitMap bitmap;                    // keeps track of the allocation status of the memory blocks
-    size_t numblocks[MAX_LEVELS + 1]; // number of available blocks at each level
+    size_t num_nodes[MAX_LEVELS + 1]; // number of available blocks at each level
     char *buffer;                     // memory area to manage
-    int min_size;                     // minimum size in bytes to be allocated
 } MyBuddyAllocator;
 
 // initialize buddy allocator
