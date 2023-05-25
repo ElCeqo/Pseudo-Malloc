@@ -81,14 +81,14 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
 
 void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
 
-    //TODO
-    /*
-        First check basic cases which might be: NULL POINTER, PTR already freed
-    */
-
    if (ptr == NULL) return;
 
-   // calculate idx of ptr
-   char *p = (char *)ptr; //turns out idk how
+   // Retrieve buddy from the system
+   char *p = (char *)ptr;
+   MyBuddyItem **buddy_ptr = (MyBuddyItem **)ptr;
+   MyBuddyItem *buddy = *buddy_ptr;
+
+   assert(buddy->start == p);
+
    
 }
