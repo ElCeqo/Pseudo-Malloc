@@ -1,7 +1,6 @@
 #pragma once
 #include "bit_map.h"
-#include "pseudo_malloc.h"
-#include "math.h"
+#include <stdio.h>
 #include "pool_allocator.h"
 
 #define MAX_LEVELS 20 // 1MB of memory

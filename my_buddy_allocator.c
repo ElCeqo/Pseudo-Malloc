@@ -1,4 +1,6 @@
 #include "my_buddy_allocator.h"
+#include <assert.h>
+#include <math.h>
 
 // Functions for bitmap indices
 
@@ -94,7 +96,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Then set to allocated all the bits corresponding to subtree
     start_index*=2;
 
-    while (start_index < &buddyAllocator->bitmap.num_bits){
+    while (start_index < buddyAllocator->bitmap.num_bits){
         BitMap_setBit(&buddyAllocator->bitmap, start_index, 1);
         BitMap_setBit(&buddyAllocator->bitmap, buddyIdx(start_index), 1);
         start_index*=2;
