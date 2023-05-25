@@ -21,7 +21,6 @@ void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, ch
     for(int i = 0; i < MAX_LEVELS; ++i){
         buddyAllocator->num_nodes[i] = (1 << MAX_LEVELS - i);
     }
-
 }
 
 void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
@@ -61,6 +60,10 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Calculate and return the pointer to the allocated block
     // Calculation is (2^level_where_bit_is + offset)
     return (void *)&buddyAllocator->buffer[(buddyAllocator->buffer[1 << level + (available_bit - (1 << levelIdx(available_bit)))])];
+
+    // OR actually use a slab allocator and create BuddyItems structs to return that contain 
+    // pointers to the memory region associated to them (which is fixed btw since on the same 
+    // level there are fixed size memory regions)
 }
 
 void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){

@@ -2,6 +2,7 @@
 #include "bit_map.h"
 #include "pseudo_malloc.h"
 #include "math.h"
+#include "pool_allocator.h"
 
 #define MAX_LEVELS 20 // 1MB of memory
 
@@ -13,10 +14,18 @@ typedef enum {
     DoubleFree=-4
 } MyBuddyAllocatorResult;
 
+typedef struct MyBuddyItem{
+    int idx;       // tree index
+    int level;     //level of the tree
+    char *start;   //pointer to start of memory
+    int size;
+} MyBuddyItem;
+
 typedef struct MyBuddyAllocator {
     BitMap bitmap;                    // keeps track of the allocation status of the memory blocks
     size_t num_nodes[MAX_LEVELS + 1]; // number of available blocks at each level
     char *buffer;                     // memory area to manage
+    PoolAllocator items;
 } MyBuddyAllocator;
 
 // initialize buddy allocator
