@@ -60,9 +60,19 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
 
     // Calculate and return the pointer to the allocated block
     // Calculation is (2^level_where_bit_is + offset)
-    return (void *)(buddyAllocator->buffer[1 << level + (available_bit - (1 << levelIdx(available_bit)))]);
+    return (void *)&buddyAllocator->buffer[(buddyAllocator->buffer[1 << level + (available_bit - (1 << levelIdx(available_bit)))])];
 }
 
 void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
 
+    //TODO
+    /*
+        First check basic cases which might be: NULL POINTER, PTR already freed
+    */
+
+   if (ptr == NULL) return;
+
+   // calculate idx of ptr
+   char *p = (char *)ptr; //turns out idk how
+   
 }

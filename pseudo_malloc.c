@@ -1,9 +1,8 @@
 #include "pseudo_malloc.h"
 #include "my_buddy_allocator.h"
 
-#define MEMORY_SIZE (1024 * 1024) // 1MB
-
-char memory[MEMORY_SIZE];
+// Does this refer to the alloc defined in tests?
+extern MyBuddyAllocator alloc;
 
 void * pseudo_malloc(size_t size){
     //TODO
@@ -11,11 +10,9 @@ void * pseudo_malloc(size_t size){
     /*from man:
         If size is 0 malloc returns NULL
         On error returns NULL*/
-    
-    //Just a test
-    uint8_t *bitmap;
-    MyBuddyAllocator allocator;
-    MyBuddyAllocator_init(&allocator, bitmap, &memory);
+    //Stuff calculate the level etc;
+    int level = 1;
+    MyBuddyAllocator_malloc(&alloc, level);
 }
 
 void pseudo_free(void * ptr){
