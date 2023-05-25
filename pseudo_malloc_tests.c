@@ -9,5 +9,6 @@ int main(int argc, char *argv){
 
     // Initialize buddy allocator
     uint8_t *bitmap_arr;
-    MyBuddyAllocator_init(&alloc, bitmap_arr, memory);
+    char *buffer;
+    MyBuddyAllocator_init(&alloc, bitmap_arr, memory, buffer);
 }

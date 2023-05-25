@@ -13,27 +13,31 @@ int buddyIdx(int idx) {
 
 int parentIdx(int idx) { return idx / 2; }
 
-void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory){
+void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory, char *buffer){
     
     int number_of_bits = 1 << MAX_LEVELS +1;
     BitMap_init(&buddyAllocator->bitmap, number_of_bits, bitmap);
 
-    buddyAllocator->buffer = memory;
+    buddyAllocator->memory = memory;
 
     // initialize the number of blocks at each level
     for(int i = 0; i < MAX_LEVELS; ++i){
         buddyAllocator->num_nodes[i] = (1 << MAX_LEVELS - i);
     }
+
+
+    PoolAllocatorResult init_result = PoolAllocator_init(&buddyAllocator->items, sizeof(MyBuddyItem), 1 << MAX_LEVELS, buddyAllocator->buffer, sizeof(MyBuddyItem) * (1 << MAX_LEVELS));
+    printf("%s\n", PoolAllocator_strerror(init_result));
 }
 
-// Returns a BuddyItem
-// Parameters could be less -> TODO
-MyBuddyItem *createBuddyItem(MyBuddyAllocator *alloc, int idx){
+// Returns a new BuddyItem
+MyBuddyItem *createBuddyItem(MyBuddyAllocator *alloc, int idx, MyBuddyItem *parent_ptr){
     MyBuddyItem *item = (MyBuddyItem *)PoolAllocator_getBlock(&alloc->items);
     item->idx = idx;
     item->level = levelIdx(idx);
     item->size = alloc->bitmap.buffer_size / alloc->num_nodes[item->level]; // Memory at level x is divided into num_nodes[x] parts
-    item->start = alloc->buffer + ((1 << item->level) + (idx - (1 << levelIdx(idx))));
+    item->start = alloc->memory + item->idx;
+    item->parent_ptr = parent_ptr;
     return item;
 }
 
@@ -70,13 +74,13 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
         start_index*=2;
     }
 
-    // OR actually use a slab allocator and create BuddyItems structs to return that contain 
-    // pointers to the memory region associated to them (which is fixed btw since on the same 
-    // level there are fixed size memory regions)
+    // Create the buddy Item with 
+    MyBuddyItem *mem;
 
-    // Create the butty Item
-    MyBuddyItem *mem = createBuddyItem(buddyAllocator, available_bit);
-    return (void *)mem;
+    //If buddy is set set parent_ptr else null
+    //PUT PARENT_PTR TODO
+    MyBuddyItem *parent_ptr = BitMap_bit(&buddyAllocator->bitmap, buddyIdx(start_index)) ? createBuddyItem(buddyAllocator, available_bit, 1) : createBuddyItem(buddyAllocator, available_bit, 0);
+    return (void *)mem->start;
 }
 
 void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
@@ -90,5 +94,11 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
 
    assert(buddy->start == p);
 
-   
+   // need to recursively set the parent to 0 if both buddies are free
+   // Need to implement buddy and parents in the Item structure 
+
+   // Set the bits in the bitmap back to 0
+   BitMap_setBit(&buddyAllocator->bitmap, buddy->idx, 0);
+
+
 }
