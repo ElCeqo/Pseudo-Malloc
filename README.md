@@ -5,7 +5,7 @@ This is a pseudo-malloc implementation for the Operating System course at Sapien
 
 ## TODO List
 
-- Implement BuddyAlloc_free  // Find a way to get parent_ptr
+- Test Buddy Alloc
 - Implement Pseudo malloc and free
 - Create tests  
 - Create Makefile
