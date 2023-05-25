@@ -13,6 +13,20 @@ int buddyIdx(int idx) {
 
 int parentIdx(int idx) { return idx / 2; }
 
+// sets all the parent bits to 1 if both of the buddys are allocated
+void BitMap_parentBits(BitMap *bitmap, int idx){
+    if (idx == 0) return;
+
+    // If buddy is set to 1 set parent and go recursively
+    if(BitMap_bit(bitmap, buddyIdx(idx))){
+        BitMap_setBit(bitmap, parentIdx(idx), 1);
+        BitMap_parentBits(bitmap, parentIdx(idx));
+    }
+    
+    // If buddy is not allocated do nothing
+    return;
+}
+
 void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory, char *buffer){
     
     int number_of_bits = 1 << MAX_LEVELS +1;
@@ -30,6 +44,15 @@ void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, ch
     printf("%s\n", PoolAllocator_strerror(init_result));
 }
 
+// recursively set parent pointer
+MyBuddyItem *getBuddyItem(MyBuddyAllocator *alloc, int level, int idx){
+
+    if (level < 0) return 0;
+
+    MyBuddyItem *parent_ptr = getBuddyItem(alloc, level -1, parentIdx(idx));
+
+}
+
 // Returns a new BuddyItem
 MyBuddyItem *createBuddyItem(MyBuddyAllocator *alloc, int idx, MyBuddyItem *parent_ptr){
     MyBuddyItem *item = (MyBuddyItem *)PoolAllocator_getBlock(&alloc->items);
@@ -39,6 +62,11 @@ MyBuddyItem *createBuddyItem(MyBuddyAllocator *alloc, int idx, MyBuddyItem *pare
     item->start = alloc->memory + item->idx;
     item->parent_ptr = parent_ptr;
     return item;
+}
+
+// Releases a buddy item
+void destroyBuddyItem(MyBuddyAllocator *alloc, MyBuddyItem *item){
+    PoolAllocatorResult release_result = PoolAllocator_releaseBlock(&alloc->items, item);
 }
 
 void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
@@ -60,9 +88,9 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Mark the block as allocated in the BitMap
     BitMap_setBit(&buddyAllocator->bitmap, start_index, 1);
 
-    // If the buddy is also allocated set the parent to allocated
+    // If the buddy is also allocated set the parent to allocated recursively
     if (BitMap_bit(&buddyAllocator->bitmap, buddyIdx(start_index))){
-        BitMap_setBit(&buddyAllocator->bitmap, parentIdx(start_index), 1);
+        BitMap_parentBits(&buddyAllocator->bitmap, start_index);
     }
 
     // Then set to allocated all the bits corresponding to subtree
@@ -72,14 +100,11 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
         BitMap_setBit(&buddyAllocator->bitmap, start_index, 1);
         BitMap_setBit(&buddyAllocator->bitmap, buddyIdx(start_index), 1);
         start_index*=2;
-    }
-
-    // Create the buddy Item with 
-    MyBuddyItem *mem;
-
-    //If buddy is set set parent_ptr else null
+    }    //If buddy is set set parent_ptr else null
     //PUT PARENT_PTR TODO
-    MyBuddyItem *parent_ptr = BitMap_bit(&buddyAllocator->bitmap, buddyIdx(start_index)) ? createBuddyItem(buddyAllocator, available_bit, 1) : createBuddyItem(buddyAllocator, available_bit, 0);
+
+    // Create the buddy Item
+    MyBuddyItem *mem = getBuddyItem(buddyAllocator, level, available_bit);
     return (void *)mem->start;
 }
 
@@ -100,5 +125,8 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
    // Set the bits in the bitmap back to 0
    BitMap_setBit(&buddyAllocator->bitmap, buddy->idx, 0);
 
+   if (!buddy->parent_ptr) return;
+
+   
 
 }
