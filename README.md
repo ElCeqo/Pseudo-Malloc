@@ -5,6 +5,7 @@ This is a pseudo-malloc implementation for the Operating System course at Sapien
 
 ## TODO List
 
+- Add checks in buddy_allocator
 - Test Buddy Alloc
 - Implement Pseudo malloc and free
 - Create tests  

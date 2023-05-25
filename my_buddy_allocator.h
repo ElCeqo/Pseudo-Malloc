@@ -6,14 +6,6 @@
 
 #define MAX_LEVELS 20 // 1MB of memory
 
-typedef enum {
-    Succes=0x0,
-    NotEnoughMemory=-1,
-    UnalignedFree=-2,
-    OutOfRange=-3,
-    DoubleFree=-4
-} MyBuddyAllocatorResult;
-
 typedef struct MyBuddyItem{
     int idx;       // tree index
     int level;     // level of the tree
