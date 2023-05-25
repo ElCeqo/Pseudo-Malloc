@@ -18,7 +18,7 @@ typedef struct MyBuddyItem{
     int idx;       // tree index
     int level;     //level of the tree
     char *start;   //pointer to start of memory
-    int size;
+    int size;       
 } MyBuddyItem;
 
 typedef struct MyBuddyAllocator {

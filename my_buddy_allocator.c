@@ -1,6 +1,9 @@
 #include "my_buddy_allocator.h"
 
 // Functions for bitmap indices
+
+int levelIdx(size_t idx) { return (int)floor(log2(idx)); };
+
 int buddyIdx(int idx) {
   if (idx & 0x1) {
     return idx - 1;
@@ -21,6 +24,17 @@ void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, ch
     for(int i = 0; i < MAX_LEVELS; ++i){
         buddyAllocator->num_nodes[i] = (1 << MAX_LEVELS - i);
     }
+}
+
+// Returns a BuddyItem
+// Parameters could be less -> TODO
+MyBuddyItem *createBuddyItem(MyBuddyAllocator *alloc, int idx){
+    MyBuddyItem *item = (MyBuddyItem *)PoolAllocator_getBlock(&alloc->items);
+    item->idx = idx;
+    item->level = levelIdx(idx);
+    item->size = alloc->bitmap.buffer_size / alloc->num_nodes[item->level]; // Memory at level x is divided into num_nodes[x] parts
+    item->start = alloc->buffer + ((1 << item->level) + (idx - (1 << levelIdx(idx))));
+    return item;
 }
 
 void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
@@ -55,15 +69,14 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
         BitMap_setBit(&buddyAllocator->bitmap, buddyIdx(start_index), 1);
         start_index*=2;
     }
-    
-
-    // Calculate and return the pointer to the allocated block
-    // Calculation is (2^level_where_bit_is + offset)
-    return (void *)&buddyAllocator->buffer[(buddyAllocator->buffer[1 << level + (available_bit - (1 << levelIdx(available_bit)))])];
 
     // OR actually use a slab allocator and create BuddyItems structs to return that contain 
     // pointers to the memory region associated to them (which is fixed btw since on the same 
     // level there are fixed size memory regions)
+
+    // Create the butty Item
+    MyBuddyItem *mem = createBuddyItem(buddyAllocator, available_bit);
+    return (void *)mem;
 }
 
 void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
