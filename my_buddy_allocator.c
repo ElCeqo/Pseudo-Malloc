@@ -1,6 +1,7 @@
 #include "my_buddy_allocator.h"
 #include <assert.h>
 #include <math.h>
+#include "pseudo_malloc.h"
 
 // Functions for bitmap indices
 
@@ -14,6 +15,10 @@ int buddyIdx(int idx) {
 }
 
 int parentIdx(int idx) { return idx / 2; }
+
+int startIdx(int idx){
+  return (idx-(1<<levelIdx(idx)));
+}
 
 // sets all the parent bits to 1 
 void BitMap_ParentSetBitOne(BitMap *bitmap, int idx){
@@ -41,11 +46,12 @@ void BitMap_ParentSetBitZero(BitMap *bitmap, int idx){
 
 void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory, char *buffer){
     
-    int number_of_bits = (1 << MAX_LEVELS) +1; // +1 for level 0
+    int number_of_bits = (1 << MAX_LEVELS) -1;
     BitMap_init(&buddyAllocator->bitmap, number_of_bits, bitmap);
 
     buddyAllocator->memory = memory;
     buddyAllocator->buffer = buffer;
+    buddyAllocator->num_levels = MAX_LEVELS;
 
     // initialize the number of blocks at each level
     for(int i = 0; i <= MAX_LEVELS; ++i){
@@ -62,8 +68,8 @@ MyBuddyItem *createBuddyItem(MyBuddyAllocator *alloc, int idx){
     MyBuddyItem *item = (MyBuddyItem *)PoolAllocator_getBlock(&alloc->items);
     item->idx = idx;
     item->level = levelIdx(idx);
-    item->size = alloc->bitmap.buffer_size / alloc->num_nodes[item->level]; // Memory at level x is divided into num_nodes[x] parts
-    item->start = alloc->memory + item->idx;
+    item->size = 1 << (alloc->num_levels - item->level);
+    item->start = alloc->memory + (startIdx(item->idx) * item->size);
     return item;
 }
 
@@ -73,18 +79,21 @@ void destroyBuddyItem(MyBuddyAllocator *alloc, MyBuddyItem *item){
 }
 
 void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
-    int level = ceil(log2(size)); // I need bigger space not smaller that's why ceil
+    int level = MAX_LEVELS - ceil(log2(size)); // I need bigger space not smaller that's why ceil
     int num_nodes = buddyAllocator->num_nodes[level];
 
     // Find the first available block of the specified level
     size_t offset = 0;
 
-    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, offset + num_nodes)){
+    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) + offset)){
         offset++;
     }
 
-    // If no available block is found return NULL
-    if (offset > num_nodes) return NULL;
+    // If no available block is found return NULL --insert some error message
+    if (offset > num_nodes){
+        printf("OUT OF MEMORYYYYYYYYY\n");
+        return NULL;
+    }
 
     size_t available_bit = (1 << level) + offset;
 
@@ -94,7 +103,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Set ALL the upper tree to allocated recursively
     BitMap_ParentSetBitOne(&buddyAllocator->bitmap, available_bit);
 
-    // Then set to allocated all the bits corresponding to subtreestart_index
+    // Then set to allocated all the bits corresponding to subtree
     size_t start_index = available_bit*2;
 
     while (start_index < buddyAllocator->bitmap.num_bits){

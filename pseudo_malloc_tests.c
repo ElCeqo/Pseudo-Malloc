@@ -4,7 +4,7 @@
 
 char memory[MEMORY_SIZE];
 char buffer[BUFFER_SIZE];
-uint8_t bitmap_arr[(1 << MAX_LEVELS) +1];
+uint8_t bitmap_arr[((1 << MAX_LEVELS) +1)];
 
 MyBuddyAllocator alloc;
 
@@ -15,7 +15,11 @@ int main(int argc, char *argv){
 
     printf("[MAIN]: Initialized BuddyAllocator:\n\tBitMap length in bits ---> %d \n", (&alloc)->bitmap.num_bits);
 
-    char *ptr = (char*)pseudo_malloc(256);
+    printf("[MAIN]: Beginning of memor: %p\n", memory);
 
-    printf("[MAIN]: Allocated pointer %p", ptr);
+    char *ptr1 = (char *)pseudo_malloc(256);
+    char *ptr2 = (char *)pseudo_malloc(256);
+    char *ptr3 = (char *)pseudo_malloc(256);
+
+    printf("[MAIN]: Allocated pointers:\n\tptr1: %p\n\tptr2: %p\n\tptr3: %p\n", ptr1, ptr2, ptr3);
 }

@@ -9,9 +9,7 @@ typedef struct MyBuddyItem{
     int idx;       // tree index
     int level;     // level of the tree
     char *start;   // pointer to start of memory
-    int size;
-    struct MyBuddyItem *buddy_ptr;
-    struct MyBuddyItem *parent_ptr;       
+    int size;    
 } MyBuddyItem;
 
 typedef struct MyBuddyAllocator {
@@ -20,6 +18,7 @@ typedef struct MyBuddyAllocator {
     char *memory;                     // memory area to manage
     char *buffer;                     // contiguous buffer for slab allocator
     PoolAllocator items;
+    int num_levels;
 } MyBuddyAllocator;
 
 // initialize buddy allocator
