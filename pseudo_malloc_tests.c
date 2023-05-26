@@ -13,9 +13,9 @@ int main(int argc, char *argv){
     // Initialize buddy allocator
     MyBuddyAllocator_init(&alloc, bitmap_arr, memory, buffer);
 
-    printf("[MAIN]: Initialized BuddyAllocator:\n BitMap length in bits ---> %d \n", (&alloc)->bitmap.num_bits);
+    printf("[MAIN]: Initialized BuddyAllocator:\n\tBitMap length in bits ---> %d \n", (&alloc)->bitmap.num_bits);
 
     char *ptr = (char*)pseudo_malloc(256);
 
-    printf("Allocated pointer %p", ptr);
+    printf("[MAIN]: Allocated pointer %p", ptr);
 }

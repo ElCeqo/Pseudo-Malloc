@@ -77,25 +77,25 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     int num_nodes = buddyAllocator->num_nodes[level];
 
     // Find the first available block of the specified level
-    size_t start_index = 0;
+    size_t offset = 0;
 
-    while (start_index <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, start_index + num_nodes)){
-        start_index++;
+    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, offset + num_nodes)){
+        offset++;
     }
 
     // If no available block is found return NULL
-    if (start_index > ((1 << (level +1)) -1)) return NULL;
+    if (offset > num_nodes) return NULL;
 
-    size_t available_bit = start_index;
+    size_t available_bit = (1 << level) + offset;
 
     // Mark the block as allocated in the BitMap
-    BitMap_setBit(&buddyAllocator->bitmap, start_index, 1);
+    BitMap_setBit(&buddyAllocator->bitmap, available_bit, 1);
 
     // Set ALL the upper tree to allocated recursively
-    BitMap_ParentSetBitOne(&buddyAllocator->bitmap, start_index);
+    BitMap_ParentSetBitOne(&buddyAllocator->bitmap, available_bit);
 
-    // Then set to allocated all the bits corresponding to subtree
-    start_index*=2;
+    // Then set to allocated all the bits corresponding to subtreestart_index
+    size_t start_index = available_bit*2;
 
     while (start_index < buddyAllocator->bitmap.num_bits){
         BitMap_setBit(&buddyAllocator->bitmap, start_index, 1);
