@@ -20,6 +20,19 @@ int main(int argc, char *argv){
     char *ptr1 = (char *)pseudo_malloc(256);
     char *ptr2 = (char *)pseudo_malloc(256);
     char *ptr3 = (char *)pseudo_malloc(256);
-
+    char *ptr4 = (char *)pseudo_malloc(256);
     printf("[MAIN]: Allocated pointers:\n\tptr1: %p\n\tptr2: %p\n\tptr3: %p\n", ptr1, ptr2, ptr3);
+    char *ptrs[1023];
+    for (int i = 0; i < 1023; ++i){
+        ptrs[i] = (char *)pseudo_malloc(1024);
+        printf("Allocated ptr %p\n", ptrs[i]);
+    }
+
+    printf("End of memory %p\n", memory + MEMORY_SIZE - 1024);
+
+    printf("Exceeding meomry returns null?\n");
+
+    char * oor = (char *)pseudo_malloc(32);
+    printf("Allocated ptr %p\n", oor);
+
 }
