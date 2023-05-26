@@ -77,9 +77,9 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     int num_nodes = buddyAllocator->num_nodes[level];
 
     // Find the first available block of the specified level
-    // Check the bounds in the level, so from 2^level to (2^level+1)-1
-    size_t start_index = 1 << level;
-    while (start_index <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, start_index)){
+    size_t start_index = 0;
+
+    while (start_index <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, start_index + num_nodes)){
         start_index++;
     }
 

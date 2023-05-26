@@ -14,9 +14,7 @@ void * pseudo_malloc(size_t size){
     
     // Use buddy_alloc when:
     if (size <= PAGE_SIZE/4){
-        // Calculate the level for the buddy allocator
-        int level = ceil(log2(size));
-        void *mem = MyBuddyAllocator_malloc(&alloc, level);
+        void *mem = MyBuddyAllocator_malloc(&alloc, size);
         return mem;
     }
 }
