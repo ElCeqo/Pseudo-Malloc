@@ -30,3 +30,5 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int level);
 
 // releases block of memory
 void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr);
+
+void printBitMap(BitMap *bitmap);

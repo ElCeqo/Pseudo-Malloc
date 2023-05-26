@@ -5,6 +5,15 @@
 
 // Functions for bitmap indices
 
+void printBitMap(BitMap *bitmap){
+    for(int i = 0; i < bitmap->num_bits; ++i){
+        
+        if(BitMap_bit(bitmap, i)){
+            printf("bit num %d   value = %d\n", i ,BitMap_bit(bitmap, i));
+        }
+    }
+}
+
 int levelIdx(size_t idx) { return (int)floor(log2(idx)); };
 
 int buddyIdx(int idx) {
@@ -14,10 +23,28 @@ int buddyIdx(int idx) {
   return idx + 1;
 }
 
-int parentIdx(int idx) { return idx / 2; }
+int parentIdx(int idx) { return (idx - 1) / 2; }
 
 int startIdx(int idx){
   return (idx-(1<<levelIdx(idx)));
+}
+
+void BitMap_SetSubTreeToOne(BitMap *bitmap, int idx){
+
+    BitMap_setBit(bitmap, idx, 1);
+
+    int left_child = (idx * 2) +1;
+    int right_child = (idx* 2) + 2;
+
+    if(left_child < bitmap->num_bits){
+        BitMap_SetSubTreeToOne(bitmap, left_child);
+    }
+
+    if(right_child < bitmap->num_bits){
+        BitMap_SetSubTreeToOne(bitmap, right_child);
+    }
+
+    return;
 }
 
 // sets all the parent bits to 1 
@@ -85,7 +112,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Find the first available block of the specified level
     size_t offset = 0;
 
-    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) + offset)){
+    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) -1 + offset)){
         offset++;
     }
 
@@ -95,7 +122,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
         return NULL;
     }
 
-    size_t available_bit = (1 << level) + offset;
+    size_t available_bit = (1 << level) -1 + offset;
 
     // Mark the block as allocated in the BitMap
     BitMap_setBit(&buddyAllocator->bitmap, available_bit, 1);
@@ -104,16 +131,11 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     BitMap_ParentSetBitOne(&buddyAllocator->bitmap, available_bit);
 
     // Then set to allocated all the bits corresponding to subtree
-    size_t start_index = available_bit*2;
-
-    while (start_index < buddyAllocator->bitmap.num_bits){
-        BitMap_setBit(&buddyAllocator->bitmap, start_index, 1);
-        BitMap_setBit(&buddyAllocator->bitmap, buddyIdx(start_index), 1);
-        start_index*=2;
-    }
+    BitMap_SetSubTreeToOne(&buddyAllocator->bitmap, available_bit);
 
     // Now that tree is correctly set, get the buddy Item
     MyBuddyItem *mem = createBuddyItem(buddyAllocator, available_bit);
+    //printBitMap(&buddyAllocator->bitmap);
     return (void *)mem->start;
 }
 
