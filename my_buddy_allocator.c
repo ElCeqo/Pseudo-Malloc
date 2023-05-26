@@ -41,18 +41,19 @@ void BitMap_ParentSetBitZero(BitMap *bitmap, int idx){
 
 void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory, char *buffer){
     
-    int number_of_bits = 1 << MAX_LEVELS +1;
+    int number_of_bits = (1 << MAX_LEVELS) +1; // +1 for level 0
     BitMap_init(&buddyAllocator->bitmap, number_of_bits, bitmap);
 
     buddyAllocator->memory = memory;
+    buddyAllocator->buffer = buffer;
 
     // initialize the number of blocks at each level
-    for(int i = 0; i < MAX_LEVELS; ++i){
-        buddyAllocator->num_nodes[i] = (1 << MAX_LEVELS - i);
+    for(int i = 0; i <= MAX_LEVELS; ++i){
+        buddyAllocator->num_nodes[i] = (1 << i);
     }
 
 
-    PoolAllocatorResult init_result = PoolAllocator_init(&buddyAllocator->items, sizeof(MyBuddyItem), 1 << MAX_LEVELS, buddyAllocator->buffer, sizeof(MyBuddyItem) * (1 << MAX_LEVELS));
+    PoolAllocatorResult init_result = PoolAllocator_init(&buddyAllocator->items, sizeof(MyBuddyItem), (1 << MAX_LEVELS) +1, buddyAllocator->buffer, (sizeof(MyBuddyItem) + sizeof(int))* ((1 << MAX_LEVELS)+1));
     printf("%s\n", PoolAllocator_strerror(init_result));
 }
 
@@ -72,7 +73,7 @@ void destroyBuddyItem(MyBuddyAllocator *alloc, MyBuddyItem *item){
 }
 
 void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
-    int level = ceil(log2(size));
+    int level = ceil(log2(size)); // I need bigger space not smaller that's why ceil
     int num_nodes = buddyAllocator->num_nodes[level];
 
     // Find the first available block of the specified level

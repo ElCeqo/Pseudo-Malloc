@@ -4,7 +4,7 @@
 // simple bit array
 typedef struct {
   uint8_t *buffer; // externally allocated buffer
-  int buffer_size;
+  int buffer_size; // in bytes
   int num_bits;
 } BitMap;
 
