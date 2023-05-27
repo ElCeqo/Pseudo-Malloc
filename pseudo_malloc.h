@@ -9,7 +9,7 @@
 
 // functions to implement
 
-// alloc bytes bytes
+// alloc size bytes
 void * pseudo_malloc(size_t size);
 
 // free

@@ -119,7 +119,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
 
     // If no available block is found return NULL --insert some error message
     if (offset > num_nodes){
-        printf("OUT OF MEMORYYYYYYYYY\n");
+        printf("[BuddyMalloc]: No more memory available, returning NULL\n");
         return NULL;
     }
 
@@ -136,7 +136,9 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
 
     // Now that tree is correctly set, get the buddy Item
     MyBuddyItem *mem = createBuddyItem(buddyAllocator, available_bit);
-    //printBitMap(&buddyAllocator->bitmap);
+
+    MyBuddyItem **target = (MyBuddyItem **)(mem->start);
+    *target = mem;
     return (void *)mem->start;
 }
 
@@ -146,9 +148,9 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
 
    // Retrieve buddy from the system
    char *p = (char *)ptr;
-   
-   //MyBuddyItem **buddy_ptr = (MyBuddyItem **)p;
-   MyBuddyItem *buddy = (MyBuddyItem *)p;
+   MyBuddyItem **buddy_ptr = (MyBuddyItem **)p;
+   MyBuddyItem *buddy = (MyBuddyItem *)buddy_ptr;
+   buddy = *buddy_ptr;
    assert(buddy->start == p);
 
    // Set the bits in the bitmap back to 0
@@ -160,5 +162,6 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
    // Now destroy the item
    PoolAllocator_releaseBlock(&buddyAllocator->items, buddy);
 
+   printf("Free success!\n");
    return;
 }

@@ -17,35 +17,22 @@ int main(int argc, char *argv){
 
     printf("[MAIN]: Beginning of memory: %p\n", memory);
 
-    char *ptr1 = (char *)pseudo_malloc(256);
-    char *ptr2 = (char *)pseudo_malloc(256);
-    char *ptr3 = (char *)pseudo_malloc(256);
-    char *ptr4 = (char *)pseudo_malloc(256);
-    printf("[MAIN]: Allocated pointers:\n\tptr1: %p\n\tptr2: %p\n\tptr3: %p\n\tptr3: %p\n", ptr1, ptr2, ptr3, ptr4);
-    
-    char *ptrs[1023];
-    for (int i = 0; i < 1023; ++i){
-        ptrs[i] = (char *)pseudo_malloc(1024);
+    printf("[MAIN]: Allocating all memory with blocks of fixed size... and 5 more\n");
+
+    void *ptrs[1029];
+
+    for(int i = 0; i < 1029; ++i){
+        ptrs[i] = pseudo_malloc(1024);
         printf("Allocated ptr %p\n", ptrs[i]);
     }
 
-    /*void *ptr1 = pseudo_malloc(512);
-    void *ptr2 = pseudo_malloc(256);
-    pseudo_free(ptr2);
-    void *ptr3 = pseudo_malloc(257);
-    void *ptr4 = pseudo_malloc(257);
-    printf("[MAIN]: Allocated pointers:\n\tptr1: %p\n\tptr2: %p\n\tptr3: %p\n\tptr4: %p\n", ptr1, ptr2, ptr3, ptr4);
-*/
-    char *ptr = (char *)pseudo_malloc(256);
-    printf("Allocated ptr %p\n", ptr);
-
-    //pseudo_free(ptr);
     printf("End of memory %p\n", memory + MEMORY_SIZE - 1024);
 
-    //printf("Exceeding meomry returns null?\n");
+    printf("[MAIN]: Now freeing ptr0 %p\n", ptrs[0]);
+    pseudo_free(ptrs[0]);
 
-    //char * oor = (char *)pseudo_malloc(256);
-    //printf("Allocated ptr %p\n", oor);
-    printBitMap(&alloc.bitmap);
-
+    printf("[MAIN]: Now reallocating 2 of half the sieze of the freed ptr\n");
+    void *new1 = pseudo_malloc(512);
+    void *new2 = pseudo_malloc(512);
+    printf("[MAIN]: Allocated 2 new pointers:\n\tnew1: %p\n\tnew2: %p\n", new1, new2);
 }
