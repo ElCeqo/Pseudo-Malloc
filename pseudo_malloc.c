@@ -22,6 +22,8 @@ void * pseudo_malloc(size_t size){
     }
 
     // Here use mmap
+
+
 }
 
 void pseudo_free(void * ptr){
@@ -30,6 +32,7 @@ void pseudo_free(void * ptr){
     // Use buddy if...
     if(memory < ptr < memory + MEMORY_SIZE){
         MyBuddyAllocator_free(&alloc, ptr);
+        return;
     }
 
     // Here use mmap
