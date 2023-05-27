@@ -7,6 +7,5 @@ This is a pseudo-malloc implementation for the Operating System course at Sapien
 
 - Add checks in buddy_allocator
 - Test Buddy Alloc
-- Implement Pseudo malloc and free
+- Implement Pseudo free
 - Create tests  
-- Create Makefile
