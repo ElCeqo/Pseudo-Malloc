@@ -37,11 +37,11 @@ void BitMap_SetSubTreeToOne(BitMap *bitmap, int idx){
     int left_child = (idx * 2);
     int right_child = (idx* 2) + 1;
 
-    if(left_child < bitmap->num_bits){
+    if(left_child <= bitmap->num_bits){
         BitMap_SetSubTreeToOne(bitmap, left_child);
     }
 
-    if(right_child < bitmap->num_bits){
+    if(right_child <= bitmap->num_bits){
         BitMap_SetSubTreeToOne(bitmap, right_child);
     }
 
@@ -55,11 +55,11 @@ void BitMap_SetSubTreeToZero(BitMap *bitmap, int idx){
     int left_child = (idx * 2);
     int right_child = (idx* 2) + 1;
 
-    if(left_child < bitmap->num_bits){
+    if(left_child <= bitmap->num_bits){
         BitMap_SetSubTreeToZero(bitmap, left_child);
     }
 
-    if(right_child < bitmap->num_bits){
+    if(right_child <= bitmap->num_bits){
         BitMap_SetSubTreeToZero(bitmap, right_child);
     }
 
@@ -92,7 +92,7 @@ void BitMap_ParentSetBitZero(BitMap *bitmap, int idx){
 
 void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory, char *buffer){
     
-    int number_of_bits = (1 << MAX_LEVELS) -1;
+    int number_of_bits = (1 << MAX_LEVELS + 1) - 1;
     BitMap_init(&buddyAllocator->bitmap, number_of_bits, bitmap);
 
     buddyAllocator->memory = memory;
@@ -131,12 +131,12 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Find the first available block of the specified level
     size_t offset = 0;
 
-    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) + offset)){
+    while (offset < num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) + offset)){
         offset++;
     }
 
     // If no available block is found return NULL --insert some error message
-    if (offset > num_nodes){
+    if (offset >= num_nodes){
         printf("[BuddyMalloc]: No more memory available, returning NULL\n");
         return NULL;
     }

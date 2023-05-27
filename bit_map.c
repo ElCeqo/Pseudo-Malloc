@@ -16,7 +16,7 @@ void BitMap_init(BitMap *bit_map, int num_bits, uint8_t *buffer) {
 void BitMap_setBit(BitMap *bit_map, int bit_num, int status) {
   // get byte
   int byte_num = bit_num >> 3;
-  assert(byte_num < bit_map->buffer_size);
+  assert(byte_num <= bit_map->buffer_size);
   int bit_in_byte = bit_num % 8;
   if (status) {
     bit_map->buffer[byte_num] |= (1 << bit_in_byte);
@@ -28,7 +28,7 @@ void BitMap_setBit(BitMap *bit_map, int bit_num, int status) {
 // inspects the status of the bit bit_num
 int BitMap_bit(const BitMap *bit_map, int bit_num) {
   int byte_num = bit_num >> 3;
-  assert(byte_num < bit_map->buffer_size);
+  assert(byte_num <= bit_map->buffer_size);
   int bit_in_byte = bit_num % 8;
   return (bit_map->buffer[byte_num] & (1 << bit_in_byte)) != 0;
 }
