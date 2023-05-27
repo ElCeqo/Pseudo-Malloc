@@ -79,6 +79,14 @@ int main(int argc, char *argv){
     printBitMap(&alloc.bitmap);
     printf("\n");
 
-    printBitMap(&alloc.bitmap);
+    printf("[MAIN]: Now let's do some fragmentation: 1024 allocations of 513\n");
+    for(int i = 0; i < 1024; ++i){
+        ptrs[i] = pseudo_malloc(513);
+        printf("Allocated ptr %d  %p\n", i, ptrs[i]);
+    }
 
+    printf("[MAIN]: Now one allocation should return out of memory\n");
+    printf("[MAIN]: Allocating 1 byte...\n");
+    void *oom = pseudo_malloc(1);
+    
 }
