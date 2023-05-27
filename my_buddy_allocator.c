@@ -48,6 +48,24 @@ void BitMap_SetSubTreeToOne(BitMap *bitmap, int idx){
     return;
 }
 
+void BitMap_SetSubTreeToZero(BitMap *bitmap, int idx){
+    
+    BitMap_setBit(bitmap, idx, 0);
+
+    int left_child = (idx * 2);
+    int right_child = (idx* 2) + 1;
+
+    if(left_child < bitmap->num_bits){
+        BitMap_SetSubTreeToZero(bitmap, left_child);
+    }
+
+    if(right_child < bitmap->num_bits){
+        BitMap_SetSubTreeToZero(bitmap, right_child);
+    }
+
+    return;   
+}
+
 // sets all the parent bits to 1 
 void BitMap_ParentSetBitOne(BitMap *bitmap, int idx){
     if (idx == 0) return;
@@ -158,6 +176,9 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
 
    // If the buddy is also 0 set the parent to 0 and do this recursively
    BitMap_ParentSetBitZero(&buddyAllocator->bitmap, buddy->idx);
+
+   // And set its subtree back to 0
+   BitMap_SetSubTreeToZero(&buddyAllocator->bitmap, buddy->idx);
 
    // Now destroy the item
    PoolAllocator_releaseBlock(&buddyAllocator->items, buddy);
