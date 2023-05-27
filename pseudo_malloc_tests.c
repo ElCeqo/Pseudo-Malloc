@@ -92,5 +92,31 @@ int main(int argc, char *argv){
     printf("[MAIN]: testing mmap\n");
     void *ptr = pseudo_malloc(8198);
     printf("[MAIN]: Allocated ptr %p\n", ptr);
+    printf("[MAIN]: Unmapping ptr %p\n", ptr);
     pseudo_free(ptr);
+
+    printf("[MAIN]: Freeing all memory... again\n");
+
+    for(int i = 0; i < 1024; ++i){
+        pseudo_free(ptrs[i]);
+        printf("[MAIN]: Freed ptr %d  %p\n", i, ptrs[i]);
+    }
+    printf("[MAIN]: Freed all memory, sanity check, printing all 1's in the bitmap, there sould be no prints\n");
+    printf("[MAIN]: printing... ");
+    printBitMap(&alloc.bitmap);
+
+    for(int i = 0; i < 1024; ++i){
+        size_t size = rand() % 1024;
+        ptrs[i] = pseudo_malloc(size);
+        printf("Allocated ptr %d  %p of size %ld\n", i, ptrs[i], size);
+    }
+
+    for(int i = 0; i < 1024; ++i){
+        printf("Freeing ptr %i  %p\n", i, ptrs[i]);
+        if(i == 298){
+            printf("BYBP\n");
+        }
+        pseudo_free(ptrs[i]);
+    }
+
 }

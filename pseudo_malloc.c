@@ -41,11 +41,13 @@ void * pseudo_malloc(size_t size){
 void pseudo_free(void * ptr){
     if(ptr == NULL) return;
 
-    /*/ Use buddy if...
-    if(memory < ptr < memory + MEMORY_SIZE){
-        MyBuddyAllocator_free(&alloc, ptr);
-        return;
-    }*/
+    // Use buddy if...
+    for(int i = 0; i < MEMORY_SIZE; ++i){
+        if(&memory[i] == ptr){
+            MyBuddyAllocator_free(&alloc, ptr);
+            return;
+        }
+    }
 
     // Here use munmap
     // Retrieve handler from system
