@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 
 extern MyBuddyAllocator alloc;
+extern char memory[MEMORY_SIZE]; // Used to check if ptr is in buddy
 
 void * pseudo_malloc(size_t size){
 
@@ -24,15 +25,12 @@ void * pseudo_malloc(size_t size){
 }
 
 void pseudo_free(void * ptr){
-    //TODO
+    if(ptr == NULL) return;
 
-    /*from man:
-        frees memory space pointed by *ptr
-        which must have been returned by a previous
-        malloc().
-        if free(ptr) has already been called -> undefined behaviour
-        if ptr is NULL no operation occurs
-        on error returns NULL*/
+    // Use buddy if...
+    if(memory < ptr < memory + MEMORY_SIZE){
+        MyBuddyAllocator_free(&alloc, ptr);
+    }
 
-    MyBuddyAllocator_free(&alloc ,ptr);
+    // Here use mmap
 }
