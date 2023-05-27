@@ -50,4 +50,35 @@ int main(int argc, char *argv){
         printf("[MAIN]: Freed ptr %d  %p\n", i, ptrs[i]);
     }
 
+    printf("[MAIN]: Allocating back the memory with smaller size (256)\n");
+    
+    void *half[MEMORY_SIZE/2/256];
+    for(int i = 0; i < MEMORY_SIZE/2/256; ++i){
+        half[i] = pseudo_malloc(256);
+        printf("Allocated ptr %d  %p\n", i, half[i]);
+    }
+
+    printf("Freeing the same ptr twice\n");
+    pseudo_free(half[0]);
+    pseudo_free(half[0]);
+
+    printf("[MAIN]: Freeing all memory\n");
+    for (int i = 0; i < MEMORY_SIZE/2/256; ++i){
+        pseudo_free(half[i]);
+    }
+
+    for (int i = 0; i < 1029; ++i){
+        pseudo_free(ptrs[i]);
+    }
+
+    pseudo_free(new1);
+    pseudo_free(new2);
+
+    printf("[MAIN]: Freed all memory, sanity check, printing all 1's in the bitmap, there sould be no prints\n");
+    printf("[MAIN]: printing... ");
+    printBitMap(&alloc.bitmap);
+    printf("\n");
+
+    printBitMap(&alloc.bitmap);
+
 }

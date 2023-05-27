@@ -8,7 +8,7 @@
 void printBitMap(BitMap *bitmap){
     for(int i = 0; i < bitmap->num_bits; ++i){
         
-        if(!BitMap_bit(bitmap, i)){
+        if(BitMap_bit(bitmap, i)){
             printf("bit num %d   value = %d\n", i ,BitMap_bit(bitmap, i));
         }
     }
@@ -68,7 +68,8 @@ void BitMap_SetSubTreeToZero(BitMap *bitmap, int idx){
 
 // sets all the parent bits to 1 
 void BitMap_ParentSetBitOne(BitMap *bitmap, int idx){
-    if (idx == 0) return;
+    
+    if (idx == 1) return;
 
     BitMap_setBit(bitmap, parentIdx(idx), 1);
     BitMap_ParentSetBitOne(bitmap, parentIdx(idx));
@@ -78,7 +79,11 @@ void BitMap_ParentSetBitOne(BitMap *bitmap, int idx){
 
 // sets parent bit to 0 if both buddies are free
 void BitMap_ParentSetBitZero(BitMap *bitmap, int idx){
-    if (idx == 0) return;
+    
+    if(idx == 0){
+        BitMap_setBit(bitmap, idx, 0);
+        return;
+    }
 
     // If buddy is also 0 set parent to 0 and repeat
     if (!BitMap_bit(bitmap, idx) && !BitMap_bit(bitmap, buddyIdx(idx))){
@@ -171,7 +176,7 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
    buddy = *buddy_ptr;
    assert(buddy->start == p);
 
-   // Set the bits in the bitmap back to 0
+   // Set the bit in the bitmap back to 0
    BitMap_setBit(&buddyAllocator->bitmap, buddy->idx, 0);
 
    // If the buddy is also 0 set the parent to 0 and do this recursively
@@ -181,8 +186,8 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
    BitMap_SetSubTreeToZero(&buddyAllocator->bitmap, buddy->idx);
 
    // Now destroy the item
-   PoolAllocator_releaseBlock(&buddyAllocator->items, buddy);
+   PoolAllocatorResult result = PoolAllocator_releaseBlock(&buddyAllocator->items, buddy);
+   printf("%s\n", PoolAllocator_strerror(result));
 
-   printf("Free success!\n");
    return;
 }
