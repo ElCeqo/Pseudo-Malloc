@@ -7,7 +7,12 @@
 #define MEMORY_SIZE (1024 * 1024) // 1MB
 #define BUFFER_SIZE ((1 << MAX_LEVELS) +1) * (sizeof(MyBuddyItem) + sizeof(int))
 
-// functions to implement
+// Structure to handle mmap requests
+typedef struct mmapHandler{
+    void *mem;
+    size_t size;
+} mmapHandler;
+
 
 // alloc size bytes
 void * pseudo_malloc(size_t size);

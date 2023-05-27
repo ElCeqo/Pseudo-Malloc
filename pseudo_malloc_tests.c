@@ -88,5 +88,9 @@ int main(int argc, char *argv){
     printf("[MAIN]: Now one allocation should return out of memory\n");
     printf("[MAIN]: Allocating 1 byte...\n");
     void *oom = pseudo_malloc(1);
-    
+
+    printf("[MAIN]: testing mmap\n");
+    void *ptr = pseudo_malloc(8198);
+    printf("[MAIN]: Allocated ptr %p\n", ptr);
+    pseudo_free(ptr);
 }

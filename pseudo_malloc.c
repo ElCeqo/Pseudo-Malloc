@@ -1,10 +1,11 @@
+#define _GNU_SOURCE // For map_anonymous
 #include "pseudo_malloc.h"
 #include "my_buddy_allocator.h"
-#include <math.h>
 #include <sys/mman.h>
+#include <assert.h>
 
 extern MyBuddyAllocator alloc;
-extern char memory[MEMORY_SIZE]; // Used to check if ptr is in buddy
+extern char memory[MEMORY_SIZE];
 
 void * pseudo_malloc(size_t size){
 
@@ -22,18 +23,37 @@ void * pseudo_malloc(size_t size){
     }
 
     // Here use mmap
+    void * mem = mmap(NULL, size, PROT_WRITE | PROT_READ | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
+    assert(mem != MAP_FAILED);
 
+    // Create handler
+    mmapHandler handler;
+    handler.size = size;
+    handler.mem = mem;
+
+    mmapHandler **target = (mmapHandler **)(handler.mem);
+    *target = &handler;
+
+    return (void *)handler.mem;
 }
 
 void pseudo_free(void * ptr){
     if(ptr == NULL) return;
 
-    // Use buddy if...
+    /*/ Use buddy if...
     if(memory < ptr < memory + MEMORY_SIZE){
         MyBuddyAllocator_free(&alloc, ptr);
         return;
-    }
+    }*/
 
-    // Here use mmap
+    // Here use munmap
+    // Retrieve handler from system
+    char *p = (char *)ptr;
+    mmapHandler **handler_ptr = (mmapHandler **)p;
+    mmapHandler *handler = (mmapHandler *)handler_ptr;
+    handler = *handler_ptr;
+
+    int ret = munmap(handler->mem, handler->size);
+    printf("Success\n");
 }

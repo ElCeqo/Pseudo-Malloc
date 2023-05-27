@@ -5,6 +5,4 @@ This is a pseudo-malloc implementation for the Operating Systema course at Sapie
 
 ## TODO List
 
-- Add checks in buddy_allocator
-- Implement mmap for requests > 1024
 - Create more tests  
