@@ -29,4 +29,6 @@ void pseudo_free(void * ptr){
         if free(ptr) has already been called -> undefined behaviour
         if ptr is NULL no operation occurs
         on error returns NULL*/
+
+        MyBuddyAllocator_free(&alloc ,ptr);
 }

@@ -8,7 +8,7 @@
 void printBitMap(BitMap *bitmap){
     for(int i = 0; i < bitmap->num_bits; ++i){
         
-        if(BitMap_bit(bitmap, i)){
+        if(!BitMap_bit(bitmap, i)){
             printf("bit num %d   value = %d\n", i ,BitMap_bit(bitmap, i));
         }
     }
@@ -23,8 +23,9 @@ int buddyIdx(int idx) {
   return idx + 1;
 }
 
-int parentIdx(int idx) { return (idx - 1) / 2; }
+int parentIdx(int idx) { return (idx) / 2; }
 
+// Offset of the level from the current idx
 int startIdx(int idx){
   return (idx-(1<<levelIdx(idx)));
 }
@@ -33,8 +34,8 @@ void BitMap_SetSubTreeToOne(BitMap *bitmap, int idx){
 
     BitMap_setBit(bitmap, idx, 1);
 
-    int left_child = (idx * 2) +1;
-    int right_child = (idx* 2) + 2;
+    int left_child = (idx * 2);
+    int right_child = (idx* 2) + 1;
 
     if(left_child < bitmap->num_bits){
         BitMap_SetSubTreeToOne(bitmap, left_child);
@@ -112,7 +113,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     // Find the first available block of the specified level
     size_t offset = 0;
 
-    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) -1 + offset)){
+    while (offset <= num_nodes && BitMap_bit(&buddyAllocator->bitmap, (1 << level) + offset)){
         offset++;
     }
 
@@ -122,7 +123,7 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
         return NULL;
     }
 
-    size_t available_bit = (1 << level) -1 + offset;
+    size_t available_bit = (1 << level) + offset;
 
     // Mark the block as allocated in the BitMap
     BitMap_setBit(&buddyAllocator->bitmap, available_bit, 1);
@@ -145,9 +146,9 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
 
    // Retrieve buddy from the system
    char *p = (char *)ptr;
-   MyBuddyItem **buddy_ptr = (MyBuddyItem **)ptr;
-   MyBuddyItem *buddy = *buddy_ptr;
-
+   
+   //MyBuddyItem **buddy_ptr = (MyBuddyItem **)p;
+   MyBuddyItem *buddy = (MyBuddyItem *)p;
    assert(buddy->start == p);
 
    // Set the bits in the bitmap back to 0
