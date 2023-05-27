@@ -6,6 +6,5 @@ This is a pseudo-malloc implementation for the Operating Systema course at Sapie
 ## TODO List
 
 - Add checks in buddy_allocator
-- Test Buddy Alloc
-- Implement Pseudo free
-- Create tests  
+- Implement mmap for requests > 1024
+- Create more tests  
