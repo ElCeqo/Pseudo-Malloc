@@ -1,5 +1,7 @@
 #pragma once
 #include <stdint.h>
+#include <math.h>
+#include <stdio.h>
 
 // simple bit array
 typedef struct {
@@ -20,3 +22,19 @@ void BitMap_setBit(BitMap *bit_map, int bit_num, int status);
 
 // inspects the status of the bit bit_num
 int BitMap_bit(const BitMap *bit_map, int bit_num);
+
+void printBitMap(BitMap *bitmap);
+
+int levelIdx(size_t idx);
+
+int buddyIdx(int idx);
+
+int parentIdx(int idx);
+
+int startIdx(int idx);
+
+// sets the subtree of a node to status
+void BitMap_SetSubTree(BitMap *bitmap, int idx, int status);
+
+// sets all parent bits of a node to status
+void BitMap_ParentSetBit(BitMap *bitmap, int idx, int status);

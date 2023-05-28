@@ -3,98 +3,6 @@
 #include <math.h>
 #include "pseudo_malloc.h"
 
-// Functions for bitmap indices
-
-void printBitMap(BitMap *bitmap){
-    for(int i = 0; i < bitmap->num_bits; ++i){
-        
-        if(BitMap_bit(bitmap, i)){
-            printf("bit num %d   value = %d\n", i ,BitMap_bit(bitmap, i));
-        }
-    }
-}
-
-int levelIdx(size_t idx) { return (int)floor(log2(idx)); };
-
-int buddyIdx(int idx) {
-  if (idx & 0x1) {
-    return idx - 1;
-  }
-  return idx + 1;
-}
-
-int parentIdx(int idx) { return (idx) / 2; }
-
-// Offset of the level from the current idx
-int startIdx(int idx){
-  return (idx-(1<<levelIdx(idx)));
-}
-
-void BitMap_SetSubTreeToOne(BitMap *bitmap, int idx){
-
-    BitMap_setBit(bitmap, idx, 1);
-
-    int left_child = (idx * 2);
-    int right_child = (idx* 2) + 1;
-
-    if(left_child <= bitmap->num_bits){
-        BitMap_SetSubTreeToOne(bitmap, left_child);
-    }
-
-    if(right_child <= bitmap->num_bits){
-        BitMap_SetSubTreeToOne(bitmap, right_child);
-    }
-
-    return;
-}
-
-void BitMap_SetSubTreeToZero(BitMap *bitmap, int idx){
-    
-    BitMap_setBit(bitmap, idx, 0);
-
-    int left_child = (idx * 2);
-    int right_child = (idx* 2) + 1;
-
-    if(left_child <= bitmap->num_bits){
-        BitMap_SetSubTreeToZero(bitmap, left_child);
-    }
-
-    if(right_child <= bitmap->num_bits){
-        BitMap_SetSubTreeToZero(bitmap, right_child);
-    }
-
-    return;   
-}
-
-// sets all the parent bits to 1 
-void BitMap_ParentSetBitOne(BitMap *bitmap, int idx){
-    
-    if (idx == 1) return;
-
-    BitMap_setBit(bitmap, parentIdx(idx), 1);
-    BitMap_ParentSetBitOne(bitmap, parentIdx(idx));
-
-    return;
-}
-
-// sets parent bit to 0 if both buddies are free
-void BitMap_ParentSetBitZero(BitMap *bitmap, int idx){
-    
-    if(idx == 0){
-        BitMap_setBit(bitmap, idx, 0);
-        return;
-    }
-
-    // If buddy is also 0 set parent to 0 and repeat
-    if (!BitMap_bit(bitmap, idx) && !BitMap_bit(bitmap, buddyIdx(idx))){
-        BitMap_setBit(bitmap, parentIdx(idx), 0);
-        BitMap_ParentSetBitZero(bitmap, parentIdx(idx));
-    }
-
-    // else do nothing
-    return;
-}
-
 void MyBuddyAllocator_init(MyBuddyAllocator *buddyAllocator, uint8_t *bitmap, char *memory, char *buffer){
     
     int number_of_bits = (1 << MAX_LEVELS + 1) - 1;
@@ -130,7 +38,7 @@ void destroyBuddyItem(MyBuddyAllocator *alloc, MyBuddyItem *item){
 }
 
 void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
-    int level = MAX_LEVELS - ceil(log2(size)); // I need bigger space not smaller that's why ceil
+    int level = MAX_LEVELS - ceil(log2(size));
     int num_nodes = buddyAllocator->num_nodes[level];
 
     // Find the first available block of the specified level
@@ -152,10 +60,10 @@ void *MyBuddyAllocator_malloc(MyBuddyAllocator *buddyAllocator, int size){
     BitMap_setBit(&buddyAllocator->bitmap, available_bit, 1);
 
     // Set ALL the upper tree to allocated recursively
-    BitMap_ParentSetBitOne(&buddyAllocator->bitmap, available_bit);
+    BitMap_ParentSetBit(&buddyAllocator->bitmap, available_bit, 1);
 
     // Then set to allocated all the bits corresponding to subtree
-    BitMap_SetSubTreeToOne(&buddyAllocator->bitmap, available_bit);
+    BitMap_SetSubTree(&buddyAllocator->bitmap, available_bit, 1);
 
     // Now that tree is correctly set, get the buddy Item
     MyBuddyItem *mem = createBuddyItem(buddyAllocator, available_bit);
@@ -180,10 +88,10 @@ void MyBuddyAllocator_free(MyBuddyAllocator *buddyAllocator, void *ptr){
    BitMap_setBit(&buddyAllocator->bitmap, buddy->idx, 0);
 
    // If the buddy is also 0 set the parent to 0 and do this recursively
-   BitMap_ParentSetBitZero(&buddyAllocator->bitmap, buddy->idx);
+   BitMap_ParentSetBit(&buddyAllocator->bitmap, buddy->idx, 0);
 
    // And set its subtree back to 0
-   BitMap_SetSubTreeToZero(&buddyAllocator->bitmap, buddy->idx);
+   BitMap_SetSubTree(&buddyAllocator->bitmap, buddy->idx, 0);
 
    // Now destroy the item
    PoolAllocatorResult result = PoolAllocator_releaseBlock(&buddyAllocator->items, buddy);

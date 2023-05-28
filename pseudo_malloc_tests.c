@@ -106,6 +106,9 @@ int main(int argc, char *argv){
     printBitMap(&alloc.bitmap);
 
     for(int i = 0; i < 1024; ++i){
+        if (i == 298){
+            printf("My breakpoint\n");
+        }
         size_t size = rand() % 1024;
         ptrs[i] = pseudo_malloc(size);
         printf("Allocated ptr %d  %p of size %ld\n", i, ptrs[i], size);
