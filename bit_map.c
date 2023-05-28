@@ -43,8 +43,10 @@ void printBitMap(BitMap *bitmap){
     }
 }
 
+// index of the level
 int levelIdx(size_t idx) { return (int)floor(log2(idx)); };
 
+// index of the other child
 int buddyIdx(int idx) {
   if (idx & 0x1) {
     return idx - 1;
@@ -52,12 +54,15 @@ int buddyIdx(int idx) {
   return idx + 1;
 }
 
+// index of the parent node
 int parentIdx(int idx) { return (idx) / 2; }
 
+// offset of the index from tne start of the level
 int startIdx(int idx){
   return (idx-(1<<levelIdx(idx)));
 }
 
+// sets the subtree of a node to status
 void BitMap_SetSubTree(BitMap *bitmap, int idx, int status){
 
     BitMap_setBit(bitmap, idx, status);
@@ -76,6 +81,7 @@ void BitMap_SetSubTree(BitMap *bitmap, int idx, int status){
     return;
 }
 
+// sets all parent bits of a node to status
 void BitMap_ParentSetBit(BitMap *bitmap, int idx, int status){
     
     if (status == 1){
