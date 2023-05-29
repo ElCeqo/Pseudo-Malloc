@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 char memory[MEMORY_SIZE];
-char buffer[BUFFER_SIZE];
 uint8_t bitmap_arr[((1 << MAX_LEVELS) +1)];
 
 MyBuddyAllocator alloc;
@@ -11,7 +10,7 @@ MyBuddyAllocator alloc;
 int main(int argc, char *argv){
 
     // Initialize buddy allocator
-    MyBuddyAllocator_init(&alloc, bitmap_arr, memory, buffer);
+    MyBuddyAllocator_init(&alloc, bitmap_arr, memory);
 
     printf("[MAIN]: Time to stress the buddy allocator!\n");
 
@@ -104,11 +103,11 @@ int main(int argc, char *argv){
     printf("[MAIN]: Freed all memory, sanity check, printing all 1's in the bitmap, there sould be no prints\n");
     printf("[MAIN]: printing... ");
     printBitMap(&alloc.bitmap);
+    printf("\n");
 
+
+    printf("[MAIN]: Allocating ptrs of random size:\n");
     for(int i = 0; i < 1024; ++i){
-        if (i == 298){
-            printf("My breakpoint\n");
-        }
         size_t size = rand() % 1024;
         ptrs[i] = pseudo_malloc(size);
         printf("Allocated ptr %d  %p of size %ld\n", i, ptrs[i], size);
@@ -116,10 +115,9 @@ int main(int argc, char *argv){
 
     for(int i = 0; i < 1024; ++i){
         printf("Freeing ptr %i  %p\n", i, ptrs[i]);
-        if(i == 298){
-            printf("BYBP\n");
-        }
         pseudo_free(ptrs[i]);
     }
+
+    printf("Done\n");
 
 }
