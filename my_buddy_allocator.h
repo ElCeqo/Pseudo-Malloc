@@ -8,8 +8,8 @@
 typedef struct MyBuddyAllocator {
     BitMap bitmap;                    // keeps track of the allocation status of the memory blocks
     size_t num_nodes[MAX_LEVELS + 1]; // number of available blocks at each level
+    int num_levels;                   // number of levels
     char *memory;                     // memory area to manage
-    int num_levels;
 } MyBuddyAllocator;
 
 // initialize buddy allocator
